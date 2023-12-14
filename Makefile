@@ -1,3 +1,3 @@
 lint:
-	poetry run isort --check .
-	poetry run black --check .
+	poetry run isort .
+	poetry run black .

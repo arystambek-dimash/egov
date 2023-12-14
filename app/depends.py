@@ -1,20 +1,21 @@
 import json
 
-from pydantic import ValidationError
-from jose import jwt
-
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from jose import jwt
+from pydantic import ValidationError
 
 from app.config import env
-from app.utils import decode_token, validate_date_token
 from app.database import db_manager
+from app.utils import decode_token, validate_date_token
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/sign-in/access-token", scheme_name="JWT")
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/api/v1/sign-in/access-token", scheme_name="JWT"
+)
 
 
 async def get_current_user(
-        token: str = Depends(oauth2_scheme),
+    token: str = Depends(oauth2_scheme),
 ):
     try:
         payload = decode_token(token, env.JWT_SECRET_KEY)
@@ -31,10 +32,12 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    payload_str = str(payload["sub"]).replace("'", "\"")
-    payload_dict = json.loads(payload_str )
+    payload_str = str(payload["sub"]).replace("'", '"')
+    payload_dict = json.loads(payload_str)
     try:
-        user = db_manager.execute_query('SELECT * FROM "User" WHERE email=%s', (payload_dict["email"],))
+        user = db_manager.execute_query(
+            'SELECT * FROM "User" WHERE email=%s', (payload_dict["email"],)
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -42,12 +45,7 @@ async def get_current_user(
         ) from e
     if user is None:
         raise HTTPException(
-
-
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Could not find user",
         )
-    return {
-        "id": user.id,
-        "username": user.username
-    }
+    return {"id": user.id, "username": user.username}

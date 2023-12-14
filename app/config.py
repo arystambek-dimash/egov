@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,7 +12,7 @@ def config(filename="../database.ini", section="postgresql"):
         for param in params:
             db[param[0]] = param[1]
     else:
-        raise Exception('Section is not found')
+        raise Exception("Section is not found")
 
     return db
 
