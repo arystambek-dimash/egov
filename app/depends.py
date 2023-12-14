@@ -32,7 +32,7 @@ async def get_current_user(
         )
 
     payload_str = str(payload["sub"]).replace("'", "\"")
-    payload_dict = json.loads(payload_str)
+    payload_dict = json.loads(payload_str )
     try:
         user = db_manager.execute_query('SELECT * FROM "User" WHERE email=%s', (payload_dict["email"],))
     except Exception as e:
@@ -42,6 +42,8 @@ async def get_current_user(
         ) from e
     if user is None:
         raise HTTPException(
+
+
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Could not find user",
         )
