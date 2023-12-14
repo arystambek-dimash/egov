@@ -33,3 +33,6 @@ class DBManager:
             self.cursor.close()
         if self.connection is not None:
             self.connection.close()
+
+
+db_manager = DBManager()

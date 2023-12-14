@@ -6,12 +6,16 @@ from jose import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
+from app.config import env
+from app.utils import decode_token, validate_date_token
+from app.database import db_manager
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/sign-in/access-token", scheme_name="JWT")
 
 
 async def get_current_user(
         token: str = Depends(oauth2_scheme),
-) -> UserOut:
+):
     try:
         payload = decode_token(token, env.JWT_SECRET_KEY)
         if not validate_date_token(payload):
@@ -29,22 +33,19 @@ async def get_current_user(
 
     payload_str = str(payload["sub"]).replace("'", "\"")
     payload_dict = json.loads(payload_str)
-    user = user_repo.get_user_by_username(db, payload_dict["username"])
+    try:
+        user = db_manager.execute_query('SELECT * FROM "User" WHERE email=%s', (payload_dict["email"],))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error accessing the database",
+        ) from e
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Could not find user",
         )
-    is_superuser = False
-    is_moderator = False
-    if user.role_id == 1:
-        is_superuser = True
-    elif user.role_id == 3:
-        is_moderator = True
-    return UserOut(
-        id=user.id,
-        username=user.username,
-        is_active=True,
-        is_superuser=is_superuser,
-        is_moderator=is_moderator,
-    )
+    return {
+        "id": user.id,
+        "username": user.username
+    }
