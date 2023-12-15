@@ -1,23 +1,23 @@
-CREATE TABLE "Role" (
+CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
-    name VARCHAR NOT NULL UNIQUE
+    name VARCHAR(255) NOT NULL UNIQUE
 );
 
-CREATE TABLE "User" (
+INSERT INTO roles (name) VALUES
+    ('STANDARD'),
+    ('MANAGER');
+
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    username VARCHAR NOT NULL UNIQUE,
-    email VARCHAR NOT NULL UNIQUE,
-    phone_number VARCHAR UNIQUE,
-    first_name VARCHAR,
-    last_name VARCHAR,
-    address VARCHAR,
-    password VARCHAR NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone_number VARCHAR(20) UNIQUE,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    address VARCHAR(255),
+    password VARCHAR(255) NOT NULL,
     registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     role_id INTEGER DEFAULT 1,
-    FOREIGN KEY (role_id) REFERENCES "Role" (id)
+    telegram_chat_id VARCHAR(255),
+    FOREIGN KEY (role_id) REFERENCES roles (id)
 );
 
-
-INSERT INTO "Role" (name) VALUES
-    ('standard user'),
-    ('moderator');
