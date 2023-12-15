@@ -1,4 +1,4 @@
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE
 );
@@ -7,7 +7,7 @@ INSERT INTO roles (name) VALUES
     ('STANDARD'),
     ('MANAGER');
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     phone_number VARCHAR(20) UNIQUE,
@@ -21,3 +21,12 @@ CREATE TABLE users (
     FOREIGN KEY (role_id) REFERENCES roles (id)
 );
 
+CREATE TYPE status AS ENUM ('APPROVED', 'CANCELED', 'ON_MODERATION');
+
+CREATE TABLE IF NOT EXISTS moderation_requests (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users (id),
+    manager_id INTEGER REFERENCES users (id) DEFAULT NULL,
+    status status DEFAULT 'ON_MODERATION',
+    fields_to_change JSONB
+);
